@@ -4,7 +4,7 @@ use std::fmt::Debug;
 use std::io::stdin;
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct Node<T: Ord + Debug> {
+pub struct Node<T: Ord + Debug + Copy> {
     value: T,
     height: u32,
     left: Option<Box<Node<T>>>,
@@ -12,7 +12,7 @@ pub struct Node<T: Ord + Debug> {
 }
 
 
-impl<T: Ord + Debug> Node<T> {
+impl<T: Ord + Debug + Copy> Node<T> {
     pub fn new(value: T) -> Self {
         Node {value: value, height: 1, left: None, right: None}
     }
@@ -160,13 +160,14 @@ impl<T: Ord + Debug> Node<T> {
         }
     }
 
-    pub fn inorder_traversal(&self) {
+    pub fn inorder_traversal(&self, res: &mut Vec<T>) {
         if let Some(ref left) = self.left {
-            left.inorder_traversal();
+            left.inorder_traversal(res);
         }
-        print!("{:?} ", self.value);
+        //print!("{:?} ", self.value);
+        res.push(self.value);
         if let Some(ref right) = self.right {
-            right.inorder_traversal();
+            right.inorder_traversal(res);
         }
     }
 }
@@ -174,11 +175,11 @@ impl<T: Ord + Debug> Node<T> {
 
 
 #[derive(Debug, PartialEq, Clone)]
-struct AVLTree<T: Ord + Debug> {
+struct AVLTree<T: Ord + Debug + Copy> {
     root: Option<Box<Node<T>>>,
 }
 
-impl <T:Ord + Debug> AVLTree<T>{
+impl <T:Ord + Debug + Copy> AVLTree<T>{
     pub fn new() -> AVLTree<T> {
         AVLTree { root: None }
     }
@@ -223,14 +224,15 @@ impl <T:Ord + Debug> AVLTree<T>{
         }
     }
 
-    pub fn inorder_traversal(&self) {
+    pub fn inorder_traversal(&self) -> Vec<T>{
+        let mut res = Vec::new();
         match self.root.as_ref() {
-            None => return,
+            None => return res,
             Some(node) => {
-                node.inorder_traversal();
+                node.inorder_traversal(&mut res);
             }
         }
-        println!();
+        return res;
     }
 }
 
@@ -261,7 +263,7 @@ fn main(){
             "height" => println!("height is {}", t.height()),
             "count" => println!("number of leaves nodes is {}", t.count_leaves()),
             "empty" => println!("{}", t.is_empty()),
-            "inorder" => t.inorder_traversal(),
+            "inorder" => println!("{:?}", t.inorder_traversal()),
             "show" => println!("{:#?}", t),
             _ => panic!("input error")
         }
